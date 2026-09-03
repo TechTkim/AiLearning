@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>보상 설계 실험실 — 스네이크 AI</title>
+<style>
+:root{--navy:#1B3A6B;--teal:#006D77;--orange:#D05A2A;--green:#2E7D32;--red:#C43C2A;--paper:#F6F4EE;--ink:#232A35;--gray:#7B8494;--line:#DCD8CE;--light:#F4F6F9;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--paper);color:var(--ink);user-select:none;-webkit-user-select:none;}
+header{background:var(--navy);color:#fff;padding:12px 18px;}
+header h1{font-size:20px;font-weight:800;} header .sub{font-size:13px;opacity:.8;}
+nav{display:flex;gap:6px;padding:8px 12px;background:#fff;border-bottom:2px solid var(--line);overflow-x:auto;position:sticky;top:0;z-index:5;}
+nav button{flex:0 0 auto;font-size:14px;font-weight:700;padding:9px 13px;border-radius:99px;border:2px solid var(--line);background:#fff;color:var(--gray);}
+nav button.on{background:var(--orange);border-color:var(--orange);color:#fff;}
+nav button.ch{border-color:#B8D8DA;} nav button.ch.on{background:var(--teal);border-color:var(--teal);}
+nav .grp{flex:0 0 auto;align-self:center;font-size:12px;font-weight:800;color:#fff;background:var(--navy);padding:4px 9px;border-radius:6px;margin-right:2px;} nav .grp.two{background:var(--red);margin-left:10px;}
+.score{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:8px 16px;background:#FFF8E8;border-bottom:2px solid #F0D9A8;font-size:14px;} .score b{font-size:17px;color:var(--navy);} .score #sb-msg{margin-left:auto;font-weight:800;color:var(--orange);}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .duel canvas.board{max-width:100%;} .duel .who{font-weight:800;text-align:center;margin-bottom:4px;} .duel .who.h{color:var(--teal);} .duel .who.a{color:var(--orange);}
+.slot{display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px;} .slot button{width:78px;height:78px;border-radius:16px;border:none;color:#fff;font-size:26px;font-weight:800;background:var(--navy);box-shadow:0 4px 0 #0E2244;} .slot button:active{transform:translateY(3px);box-shadow:none;} .slot small{font-size:12px;color:var(--gray);}
+.slot.win button{background:var(--green);box-shadow:0 4px 0 #1C5A20;} .slot.lose button{background:#9AA4B5;box-shadow:0 4px 0 #6B7585;}
+main{max-width:1000px;margin:0 auto;padding:14px;}
+.panel{display:none;} .panel.on{display:block;}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;}
+.card h2{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.card h2 .step{display:inline-block;background:var(--orange);color:#fff;font-size:12px;padding:2px 10px;border-radius:99px;margin-right:8px;vertical-align:middle;}
+.hint{font-size:13.5px;color:var(--gray);line-height:1.5;margin-bottom:8px;}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;}
+.col{flex:1;min-width:280px;}
+canvas.board{background:#fff;border:3px solid var(--navy);border-radius:12px;width:100%;max-width:360px;aspect-ratio:1;touch-action:none;display:block;}
+.chart{width:100%;height:190px;background:#fff;border:2px solid var(--line);border-radius:12px;}
+.btn{font-size:15px;font-weight:800;padding:11px 18px;border:none;border-radius:12px;color:#fff;background:var(--orange);box-shadow:0 3px 0 #A34018;cursor:pointer;}
+.btn.teal{background:var(--teal);box-shadow:0 3px 0 #004A52;} .btn.navy{background:var(--navy);box-shadow:0 3px 0 #0E2244;} .btn.green{background:var(--green);box-shadow:0 3px 0 #1C5A20;} .btn.red{background:var(--red);box-shadow:0 3px 0 #8A2A1D;}
+.btn.ghost{background:#fff;color:var(--gray);border:2px solid var(--line);box-shadow:none;}
+.btn:active{transform:translateY(2px);box-shadow:none;} .btn:disabled{opacity:.4;pointer-events:none;}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+.stat{display:inline-block;background:var(--light);border-radius:10px;padding:7px 12px;font-size:14px;margin:3px 3px 3px 0;} .stat b{color:var(--navy);}
+.rw{display:grid;grid-template-columns:110px 1fr 60px;gap:8px;align-items:center;margin:6px 0;font-size:14px;}
+.rw b{font-weight:800;} .rw output{text-align:right;font-weight:800;color:var(--navy);}
+input[type=range]{width:100%;}
+.dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:6px;justify-content:center;margin-top:10px;}
+.dpad button{font-size:26px;border:none;border-radius:14px;background:var(--navy);color:#fff;}
+.dpad .e{background:transparent;}
+.note{background:#FFF3EC;border-left:5px solid var(--orange);border-radius:0 12px 12px 0;padding:10px 14px;font-size:14px;line-height:1.55;margin-top:10px;}
+.note.g{background:#F1F8F2;border-color:var(--green);} .note.n{background:#EEF3FA;border-color:var(--navy);}
+.preset{font-size:13.5px;font-weight:700;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:#fff;color:var(--ink);}
+.preset.on{border-color:var(--orange);background:#FFF3EC;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;} th,td{border:1px solid var(--line);padding:6px;text-align:center;} th{background:var(--light);}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:800;color:#fff;}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 20px;border-radius:99px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:20;}
+.toast.on{opacity:1;}
+</style>
+</head>
+<body>
+<header><h1>보상 설계 실험실 — 스네이크 AI</h1><div class="sub">여러분은 AI가 아니라 <b>보상 설계자</b>입니다. 정답표 없이, 보상만으로 뱀을 가르치세요.</div></header>
+<nav>
+  <span class="grp">실습 Ⅰ</span>
+  <button class="on" onclick="tab(0,this)">L0 내가 먼저</button>
+  <button onclick="tab(6,this)">뽑기 게임</button>
+  <button onclick="tab(1,this)">L1 보상 설계·학습</button>
+  <button onclick="tab(2,this)">L2 탐험 vs 활용</button>
+  <span class="grp two">실습 Ⅱ</span>
+  <button onclick="tab(3,this)">L3 함정</button>
+  <button onclick="tab(4,this)">L4 독사과</button>
+  <button class="ch" onclick="tab(5,this)">도전: 술래잡기</button>
+</nav>
+<div class="score" id="scorebar">
+  <span>🧑 나(3판 평균) <b id="sb-h">-</b></span><span>🤖 AI(시험 점수) <b id="sb-a">-</b></span><span id="sb-msg">먼저 L0에서 3판을 해 보세요</span>
+</div>
+<main>
+
+<!-- L0 -->
+<section class="panel on" id="p0">
+  <div class="card"><h2><span class="step">L0</span>내가 먼저 — 사람의 점수</h2>
+    <div class="hint">화살표(또는 화면 쓸기)로 3판을 직접 해 보고 평균 점수를 활동지에 적으세요. 그리고 <b>예측</b>: AI는 몇 판을 배우면 나를 넘을까?</div>
+    <div class="row"><div class="col"><canvas class="board" id="hcv" width="400" height="400"></canvas>
+      <div class="dpad"><div class="e"></div><button onpointerdown="hDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="hDir(-1,0)">◀</button><button onpointerdown="hStart()">▶︎</button><button onpointerdown="hDir(1,0)">▶</button><div class="e"></div><button onpointerdown="hDir(0,1)">▼</button><div class="e"></div></div></div>
+      <div class="col"><span class="stat">이번 판 <b id="h-score">0</b></span><span class="stat">판 <b id="h-game">0</b>/3</span><span class="stat">기록 <b id="h-log">-</b></span><span class="stat">평균 <b id="h-avg">-</b></span>
+        <div class="btnrow"><button class="btn navy" onclick="hStart()">시작 / 다음 판</button></div>
+        <div class="note n">규칙: 먹이(●)를 먹으면 +1점, 벽이나 자기 몸에 부딪히면 끝. AI도 정확히 같은 규칙으로 배웁니다 — 다만 AI는 <b>점수판이 아니라 보상</b>을 봅니다.</div></div></div>
+  </div>
+</section>
+
+<!-- L1 -->
+<section class="panel" id="p1">
+  <div class="card"><h2><span class="step">L1</span>보상 설계 → 학습 → 관찰</h2>
+    <div class="hint">뱀은 규칙도, 길도 모릅니다. 아는 것은 "앞·왼쪽·오른쪽이 위험한가, 먹이가 어느 쪽인가"뿐이고, 행동 뒤에 받는 <b>보상 숫자</b>로만 배웁니다. 보상을 정하고 학습을 누르기 전에 <b>예측</b>(300판 뒤 평균 점수?)을 쓰세요.</div>
+    <div class="row">
+      <div class="col">
+        <div class="rw"><b>먹이 먹음</b><input type="range" id="r-food" min="-20" max="100" value="10" oninput="rwUI()"><output id="o-food">+10</output></div>
+        <div class="rw"><b>죽음</b><input type="range" id="r-die" min="-50" max="20" value="-10" oninput="rwUI()"><output id="o-die">-10</output></div>
+        <div class="rw"><b>한 걸음</b><input type="range" id="r-step" min="-15" max="2" step="0.1" value="-0.1" oninput="rwUI()"><output id="o-step">-0.1</output></div>
+        <div class="rw"><b>탐험 비율</b><input type="range" id="r-eps" min="0" max="100" value="5" oninput="rwUI()"><output id="o-eps">5%</output></div>
+        <div class="btnrow"><button class="btn" id="b-train" onclick="trainRun(300)">학습 300판</button><button class="btn ghost" onclick="trainRun(1000)">+1000판</button><button class="btn teal" onclick="playGreedy()">AI 플레이 보기</button><button class="btn ghost" onclick="resetAI()">AI 초기화</button></div>
+        <div class="btnrow"><label style="font-size:13.5px"><input type="checkbox" id="fast"> 빨리 감기(재생 생략)</label><span class="stat">학습 <b id="ep">0</b>판 · 시험 점수 <b id="avg20">-</b>점 · 연습 최고 <b id="best">0</b>점</span></div>
+        <canvas class="chart" id="chart" width="900" height="190"></canvas>
+      </div>
+      <div class="col"><canvas class="board" id="acv" width="400" height="400"></canvas><div class="stat" id="a-info">학습 전 — 뱀은 아무것도 모릅니다</div></div>
+    </div>
+    <div class="note" id="l1-note">관찰 포인트: ① 처음 20판의 뱀 ② 100판 근처에서 달라지는 것 ③ 300판의 뱀. "누가 길을 알려줬나?" — 아무도. 보상이.</div>
+  </div>
+  <div class="card"><h2><span class="step" style="background:var(--teal)">대결</span>지금 이 AI와 한 판 — 같은 속도, 같은 규칙</h2>
+    <div class="hint">왼쪽은 나(화살표·쓸기), 오른쪽은 지금까지 배운 AI. 동시에 시작해 누가 더 많이 먹는지 겨룹니다(내가 죽으면 AI는 8초만 더 진행). 학습 판수를 늘려 가며 언제 AI가 나를 넘는지 기록하세요.</div>
+    <div class="duel"><div><div class="who h">🧑 나</div><canvas class="board" id="dh" width="400" height="400"></canvas></div><div><div class="who a">🤖 AI (<span id="d-ep">0</span>판 학습)</div><canvas class="board" id="da" width="400" height="400"></canvas></div></div>
+    <div class="dpad"><div class="e"></div><button onpointerdown="dDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="dDir(-1,0)">◀</button><button onpointerdown="duelStart()">⚔</button><button onpointerdown="dDir(1,0)">▶</button><div class="e"></div><button onpointerdown="dDir(0,1)">▼</button><div class="e"></div></div>
+    <div class="btnrow"><button class="btn teal" onclick="duelStart()">⚔ 대결 시작</button><span class="stat">나 <b id="d-hs">0</b> : <b id="d-as">0</b> AI</span><span class="stat">전적 <b id="d-rec">0승 0패</b></span></div>
+    <div class="note g" id="d-note" style="display:none"></div>
+  </div>
+</section>
+
+<!-- L2 -->
+<section class="panel" id="p2">
+  <div class="card"><h2><span class="step">L2</span>탐험 vs 활용 — 실험적으로 굴수록 잘 배울까?</h2>
+    <div class="hint">탐험 비율 = 배운 것을 무시하고 아무 방향이나 시도하는 확률. <b>먼저 예측</b>: 0% · 10% · 40% · 100% 중 어느 뱀이 가장 잘 배울까? (등수를 표에 적기) → 자동 비교로 확인. 예측과 다르면 왜 다른지가 오늘의 질문입니다.</div>
+    <div class="btnrow"><button class="btn navy" onclick="epsAuto()">네 가지 자동 비교 (각 300판)</button><span class="stat" id="e-stat">-</span></div>
+    <table><tr><th>탐험 비율</th><th>내 예측 (등수)</th><th>시험 점수 (탐험 없이 20판)</th><th>연습 중 최고</th></tr>
+      <tr><td>0% (아는 길만)</td><td></td><td id="e0">-</td><td id="e0b">-</td></tr><tr><td>10%</td><td></td><td id="e10">-</td><td id="e10b">-</td></tr><tr><td>40%</td><td></td><td id="e40">-</td><td id="e40b">-</td></tr><tr><td>100% (아무렇게나)</td><td></td><td id="e100">-</td><td id="e100b">-</td></tr></table>
+    <div class="note" id="l2-note" style="display:none"></div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn red" onclick="epsPoison()">독사과 세계에서는? (0% vs 5%, 각 600판)</button><span class="stat" id="ep-stat">-</span></div>
+    <div class="note n" id="l2-note2" style="display:none"></div>
+  </div>
+</section>
+
+<!-- L3 -->
+<section class="panel" id="p3">
+  <div class="card"><h2><span class="step">L3</span>함정 — 보상을 잘못 주면 AI는 ‘정답’을 찾아낸다</h2>
+    <div class="hint">보상 설계자가 실수했을 때 AI가 어떤 행동을 발명하는지 봅니다. 예측을 먼저 쓰고 학습하세요. 그다음 L1로 돌아가 보상을 고쳐 재학습 — 그것이 <b>AI 처방전</b>입니다.</div>
+    <div class="btnrow"><button class="preset" onclick="preset(this,0,-10,1,'A')">함정 A — 한 걸음마다 +1, 먹이 0</button><button class="preset" onclick="preset(this,10,10,-0.1,'B')">함정 B — 죽음 +10 (부호 실수)</button><button class="preset" onclick="preset(this,10,-10,-12,'C')">함정 C — 한 걸음마다 −12 (걸음 벌이 죽음보다 큼)</button></div>
+    <div class="btnrow"><button class="btn" onclick="trapRun()">이 보상으로 학습 300판 → 플레이 보기</button></div>
+    <div class="row"><div class="col"><canvas class="board" id="tcv" width="400" height="400"></canvas></div><div class="col"><div class="stat" id="t-info">함정을 고르세요</div><div class="note" id="l3-note" style="display:none"></div></div></div>
+  </div>
+</section>
+
+<!-- L4 -->
+<section class="panel" id="p4">
+  <div class="card"><h2><span class="step">L4</span>독사과 — AI의 눈에 없는 것은 배울 수 없다</h2>
+    <div class="hint">L1에서 배운 뱀을 <b>독사과(빨강 ✕)가 있는 새 세계</b>에 넣습니다. 학습 없이 실행 → 어떻게 될까요? 예측을 먼저.</div>
+    <div class="btnrow"><button class="btn red" onclick="poisonRun(false)">① 배운 그대로 독사과 세계에서 실행</button><button class="btn ghost" onclick="poisonTrain(false)">② 독사과 세계에서 재학습 (센서 없이)</button><button class="btn green" onclick="poisonTrain(true)">③ ‘독 감지 센서’ 달고 재학습</button></div>
+    <div class="row"><div class="col"><canvas class="board" id="pcv" width="400" height="400"></canvas></div><div class="col"><div class="stat" id="p-info">-</div><div class="note" id="l4-note" style="display:none"></div></div></div>
+  </div>
+</section>
+
+<!-- 뽑기 게임 -->
+<section class="panel" id="p6">
+  <div class="card"><h2><span class="step">뽑기</span>어느 기계가 제일 잘 나올까? — 탐험 vs 활용</h2>
+    <div class="hint">뽑기 기계 5대. 당첨 확률은 기계마다 다르고 <b>아무도 모릅니다</b>. 30번 뽑아 최대한 많이 당첨되세요. 규칙: 잘 나오는 기계를 찾으면(활용) 계속 당길지, 아직 안 가 본 기계를 시험할지(탐험) 매번 정해야 합니다.</div>
+    <div id="slots" style="text-align:center"></div>
+    <div class="btnrow"><span class="stat">남은 횟수 <b id="bd-left">30</b></span><span class="stat">당첨 <b id="bd-win">0</b></span><button class="btn ghost" onclick="bdReset()">다시</button></div>
+    <div class="note n" id="bd-note" style="display:none"></div>
+  </div>
+  <div class="card"><h2>AI는 어떻게 뽑을까 — 탐험 비율 비교</h2>
+    <div class="hint">AI도 확률을 모른 채 <b>100번</b> 뽑습니다(사람보다 손이 빠르니까요). 탐험 비율 0%(처음 당첨된 기계만 고집) · 10% · 30% · 90%(거의 아무 기계나)로 각각 200회 반복해 평균 당첨 수를 냅니다. 먼저 예측: 어느 AI가 가장 많이 당첨될까? 등수를 표에 쓰세요.</div>
+    <div class="btnrow"><button class="btn navy" onclick="bdAI()">AI 네 가지 비교</button></div>
+    <table><tr><th>탐험 비율</th><th>내 예측 (등수)</th><th>100번 중 평균 당첨</th><th>최고 기계(4번)를 찾은 비율</th></tr>
+      <tr><td>0% (고집)</td><td></td><td id="bd0">-</td><td id="bd0f">-</td></tr><tr><td>10%</td><td></td><td id="bd10">-</td><td id="bd10f">-</td></tr><tr><td>30%</td><td></td><td id="bd30">-</td><td id="bd30f">-</td></tr><tr><td>90% (거의 무작위)</td><td></td><td id="bd90">-</td><td id="bd90f">-</td></tr></table>
+    <div class="note" id="bd-note2" style="display:none"></div>
+  </div>
+</section>
+
+<!-- 술래잡기 -->
+<section class="panel" id="p5">
+  <div class="card" style="border-color:#B8D8DA"><h2 style="color:var(--teal)"><span class="step" style="background:var(--teal)">도전</span>격자 술래잡기 — 숨바꼭질 영상의 아주 작은 흉내</h2>
+    <div class="hint">쫓는 AI(주황)와 도망 AI(청록)가 <b>번갈아</b> 배웁니다. 쫓는 쪽은 잡으면 +10, 도망 쪽은 버티면 +1·잡히면 −10. 벽(회색) 뒤로 숨는 행동이 저절로 생기는지 보세요. ※ 서로를 상대로 배우기 때문에 결과가 오락가락할 수 있습니다 — 그것도 관찰 대상입니다.</div>
+    <div class="btnrow"><button class="btn teal" onclick="tagTrain()">양쪽 학습 (각 300판 × 3회 교대)</button><button class="btn ghost" onclick="tagPlay()">한 판 보기</button><button class="btn ghost" onclick="tagReset()">초기화</button><span class="stat">잡힘 비율(최근 100판) <b id="tag-rate">-</b></span></div>
+    <div class="row"><div class="col"><canvas class="board" id="gcv" width="400" height="400"></canvas></div><div class="col"><div class="note g">관찰: 처음엔 둘 다 무작위 → 쫓는 쪽이 먼저 배움(잡힘 ↑) → 도망 쪽이 대응(잡힘 ↓) → 벽 뒤 회피가 나오면 성공. 영상의 상자 요새·경사로가 이 과정의 거대한 버전입니다.</div></div></div>
+  </div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════ 공용 ═══════════ */
+function $(id){return document.getElementById(id);}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200);}
+function tab(i,btn){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p"+i));document.querySelectorAll("nav button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");window.scrollTo(0,0);if(i===0)hDraw();if(i===6)bdDraw();}
+/* ── 사람 vs AI 점수판 ── */
+let HUMAN_AVG=null, BEAT_EP=null;
+function scoreUI(){
+  $("sb-h").textContent=HUMAN_AVG==null?"-":HUMAN_AVG.toFixed(1);
+  const a=evalHist.length?evalHist[evalHist.length-1].v:null; $("sb-a").textContent=a==null?"-":a;
+  let m="";
+  if(HUMAN_AVG==null)m="먼저 L0에서 3판을 해 보세요";
+  else if(a==null)m="이제 L1에서 AI를 학습시키세요";
+  else if(a>HUMAN_AVG){ if(BEAT_EP==null){BEAT_EP=evalHist[evalHist.length-1].ep;} m=`🤖 AI가 나를 넘었다! (${BEAT_EP}판 만에)`; }
+  else m=`아직 내가 앞선다 — AI ${a} vs 나 ${HUMAN_AVG.toFixed(1)}`;
+  $("sb-msg").textContent=m;
+}
+function mkRng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return (s>>>0)/4294967296;};}
+const N=10;
+const DIRS=[[1,0],[0,1],[-1,0],[0,-1]]; // 오른,아래,왼,위 (시계)
+
+/* ═══════════ 뱀 환경 ═══════════ */
+class Snake{
+  constructor(rng,poison=false){this.rng=rng;this.poison=poison;this.reset();}
+  reset(){this.body=[[5,5],[4,5],[3,5]];this.dir=0;this.food=null;this.pz=null;this.alive=true;this.score=0;this.steps=0;this.since=0;this.spawn();return this;}
+  free(x,y){return !this.body.some(b=>b[0]===x&&b[1]===y)&&!(this.food&&this.food[0]===x&&this.food[1]===y)&&!(this.pz&&this.pz[0]===x&&this.pz[1]===y);}
+  spawn(){let x,y;do{x=Math.floor(this.rng()*N);y=Math.floor(this.rng()*N);}while(!this.free(x,y));this.food=[x,y];
+    if(this.poison){do{x=Math.floor(this.rng()*N);y=Math.floor(this.rng()*N);}while(!this.free(x,y));this.pz=[x,y];}}
+  danger(x,y){return x<0||y<0||x>=N||y>=N||this.body.some((b,i)=>i<this.body.length-1&&b[0]===x&&b[1]===y);}
+  /* 상태: 위험(직진/좌/우) 3비트 + 먹이 방향 4비트 + 진행방향 2비트 (+ 독 방향 4비트 센서) */
+  state(sensor){
+    const h=this.body[0],d=this.dir,L=(d+3)%4,R=(d+1)%4;
+    const f=this.food,bits=[
+      this.danger(h[0]+DIRS[d][0],h[1]+DIRS[d][1])?1:0, this.danger(h[0]+DIRS[L][0],h[1]+DIRS[L][1])?1:0, this.danger(h[0]+DIRS[R][0],h[1]+DIRS[R][1])?1:0,
+      f[0]<h[0]?1:0,f[0]>h[0]?1:0,f[1]<h[1]?1:0,f[1]>h[1]?1:0, d&1,(d>>1)&1];
+    if(sensor){const p=this.pz||[-9,-9];bits.push(p[0]<h[0]&&Math.abs(p[0]-h[0])<=2&&Math.abs(p[1]-h[1])<=2?1:0,p[0]>h[0]&&Math.abs(p[0]-h[0])<=2&&Math.abs(p[1]-h[1])<=2?1:0,p[1]<h[1]&&Math.abs(p[0]-h[0])<=2&&Math.abs(p[1]-h[1])<=2?1:0,p[1]>h[1]&&Math.abs(p[0]-h[0])<=2&&Math.abs(p[1]-h[1])<=2?1:0);}
+    let s=0;for(const b of bits)s=(s<<1)|b;return s;}
+  /* 행동 0 직진 1 좌회전 2 우회전 → 보상 종류 반환 */
+  step(a){ if(a===1)this.dir=(this.dir+3)%4; if(a===2)this.dir=(this.dir+1)%4;
+    const h=this.body[0],nx=h[0]+DIRS[this.dir][0],ny=h[1]+DIRS[this.dir][1]; this.steps++;this.since++;
+    if(nx<0||ny<0||nx>=N||ny>=N||this.body.some((b,i)=>i<this.body.length-1&&b[0]===nx&&b[1]===ny)){this.alive=false;return "die";}
+    if(this.pz&&this.pz[0]===nx&&this.pz[1]===ny){this.alive=false;return "poison";}
+    this.body.unshift([nx,ny]);
+    if(this.food[0]===nx&&this.food[1]===ny){this.score++;this.since=0;this.spawn();return "food";}
+    this.body.pop(); if(this.since>200){this.alive=false;return "starve";} return "step";}
+}
+/* ═══════════ Q-학습 에이전트 ═══════════ */
+class Agent{
+  constructor(){this.Q=new Map();this.eps=0.1;this.alpha=0.1;this.gamma=0.9;this.rng=mkRng(7);}
+  q(s){let a=this.Q.get(s);if(!a){a=[0,0,0];this.Q.set(s,a);}return a;}
+  act(s,greedy){const q=this.q(s);if(!greedy&&this.rng()<this.eps)return Math.floor(this.rng()*3);
+    let b=0;for(let i=1;i<3;i++)if(q[i]>q[b])b=i;return b;}
+  learn(s,a,r,s2,done){const q=this.q(s),q2=this.q(s2);q[a]+=this.alpha*(r+(done?0:this.gamma*Math.max(...q2))-q[a]);}
+}
+function rewards(){return {food:+$("r-food").value,die:+$("r-die").value,step:+$("r-step").value};}
+function runEpisode(agent,rw,rng,opts={}){
+  const env=new Snake(rng,!!opts.poison); const sensor=!!opts.sensor; let s=env.state(sensor),ret=0,frames=opts.record?[snap(env)]:null,lastEv="cap";
+  while(env.alive&&env.steps<400){
+    const a=agent.act(s,!!opts.greedy); const ev=env.step(a); lastEv=ev;
+    const r= ev==="food"?rw.food: (ev==="die"||ev==="poison")?rw.die: ev==="starve"?rw.die: rw.step;
+    const s2=env.state(sensor); if(!opts.greedy)agent.learn(s,a,r,s2,!env.alive); s=s2;ret+=r; if(frames)frames.push(snap(env));
+  }
+  return {score:env.score,steps:env.steps,ret,frames,end:env.alive?"cap":lastEv};
+}
+function snap(env){return {body:env.body.map(b=>b.slice()),food:env.food.slice(),pz:env.pz?env.pz.slice():null,score:env.score,alive:env.alive,dir:env.dir};}
+
+/* ═══════════ 그리기 ═══════════ */
+function drawBoard(ctx,f,opt={}){
+  const W=ctx.canvas.width,c=W/N; ctx.clearRect(0,0,W,W);
+  ctx.fillStyle="#FAFAF7";ctx.fillRect(0,0,W,W); ctx.strokeStyle="#EDEDE8";for(let i=1;i<N;i++){ctx.beginPath();ctx.moveTo(i*c,0);ctx.lineTo(i*c,W);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*c);ctx.lineTo(W,i*c);ctx.stroke();}
+  if(!f){ctx.fillStyle="#8A94A6";ctx.font="bold 22px sans-serif";ctx.textAlign="center";ctx.fillText(opt.msg||"학습 전",W/2,W/2);return;}
+  if(f.pz){ctx.strokeStyle="#C43C2A";ctx.lineWidth=5;const x=f.pz[0]*c+c/2,y=f.pz[1]*c+c/2;ctx.beginPath();ctx.moveTo(x-c*.28,y-c*.28);ctx.lineTo(x+c*.28,y+c*.28);ctx.moveTo(x+c*.28,y-c*.28);ctx.lineTo(x-c*.28,y+c*.28);ctx.stroke();ctx.lineWidth=1;}
+  ctx.fillStyle="#D05A2A";ctx.beginPath();ctx.arc(f.food[0]*c+c/2,f.food[1]*c+c/2,c*.32,0,7);ctx.fill();
+  f.body.forEach((b,i)=>{ctx.fillStyle=i===0?"#1B3A6B":(f.alive?"#006D77":"#9AA4B5");const r=c*.16;const x=b[0]*c+c*.08,y=b[1]*c+c*.08,w=c*.84;ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+w,r);ctx.arcTo(x+w,y+w,x,y+w,r);ctx.arcTo(x,y+w,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.fill();});
+  if(!f.alive){ctx.fillStyle="rgba(196,60,42,.85)";ctx.font="bold 24px sans-serif";ctx.textAlign="center";ctx.fillText(opt.dead||"끝 · "+f.score+"점",W/2,W/2);}
+}
+function playFrames(ctx,frames,fps,done,opt={}){let i=0;const h=setInterval(()=>{drawBoard(ctx,frames[i],opt);i++;if(i>=frames.length){clearInterval(h);done&&done();}},1000/fps);return h;}
+
+/* ═══════════ L0 사람 플레이 ═══════════ */
+const hctx=$("hcv").getContext("2d"); let H=null,hTimer=null,hGames=[],hRng=mkRng(11);
+function hDraw(){drawBoard(hctx,H?snap(H):null,{msg:"▶︎ 시작"});}
+function hStart(){ if(hGames.length>=3){hGames=[];$("h-log").textContent="-";$("h-avg").textContent="-";} clearInterval(hTimer);
+  H=new Snake(hRng); $("h-score").textContent=0; $("h-game").textContent=hGames.length+1; hDraw();
+  hTimer=setInterval(()=>{ if(!H||!H.alive)return; const ev=H.step(0); $("h-score").textContent=H.score; hDraw();
+    if(!H.alive){clearInterval(hTimer);hGames.push(H.score);$("h-log").textContent=hGames.join(" / ");if(hGames.length>=3){HUMAN_AVG=hGames.reduce((a,b)=>a+b,0)/3;$("h-avg").textContent=HUMAN_AVG.toFixed(1);toast("3판 완료 — 평균을 활동지에");scoreUI();}}},220);}
+function hDir(dx,dy){ if(!H||!H.alive)return; const nd=DIRS.findIndex(d=>d[0]===dx&&d[1]===dy); if((nd+2)%4===H.dir)return; H.dir=nd; }
+let sx=0,sy=0; $("hcv").addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;}); $("hcv").addEventListener("pointerup",e=>{const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)<20&&Math.abs(dy)<20)return;if(Math.abs(dx)>Math.abs(dy))hDir(Math.sign(dx),0);else hDir(0,Math.sign(dy));});
+document.addEventListener("keydown",e=>{const m={ArrowRight:[1,0],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowUp:[0,-1]};if(m[e.key]){e.preventDefault();hDir(...m[e.key]);}});
+
+/* ═══════════ L1 학습 ═══════════ */
+const actx=$("acv").getContext("2d"); let A=new Agent(),hist=[],evalHist=[],envRng=mkRng(99),training=false,curPlay=null;
+function rwUI(){const r=rewards();$("o-food").textContent=(r.food>=0?"+":"")+r.food;$("o-die").textContent=(r.die>=0?"+":"")+r.die;$("o-step").textContent=(r.step>=0?"+":"")+r.step.toFixed(1);$("o-eps").textContent=$("r-eps").value+"%";}
+function resetAI(){A=new Agent();hist=[];evalHist=[];envRng=mkRng(99);BEAT_EP=null;scoreUI();drawChart();$("ep").textContent=0;$("avg20").textContent="-";$("best").textContent=0;$("a-info").textContent="초기화 — 뱀은 다시 아무것도 모릅니다";drawBoard(actx,null);}
+function drawChart(){const cv=$("chart"),g=cv.getContext("2d"),W=cv.width,Hh=cv.height;g.clearRect(0,0,W,Hh);const L=44,R=14,T=14,B=30;const mx=Math.max(5,...hist);
+  g.strokeStyle="#EDEDE8";for(let k=0;k<=4;k++){const y=T+(Hh-T-B)*(1-k/4);g.beginPath();g.moveTo(L,y);g.lineTo(W-R,y);g.stroke();g.fillStyle="#7B8494";g.font="12px sans-serif";g.textAlign="right";g.fillText(Math.round(mx*k/4),L-6,y+4);}
+  if(hist.length<2)return; const x=i=>L+(W-L-R)*(i/(hist.length-1)),y=v=>T+(Hh-T-B)*(1-v/mx);
+  g.strokeStyle="#D5DBE5";g.lineWidth=1;g.beginPath();hist.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.stroke();
+  g.strokeStyle="#D05A2A";g.lineWidth=3;g.beginPath();evalHist.forEach((e,i)=>{const px=x(Math.min(hist.length-1,e.ep-1)),py=y(e.v);i?g.lineTo(px,py):g.moveTo(px,py);});g.stroke();
+  evalHist.forEach(e=>{g.fillStyle="#D05A2A";g.beginPath();g.arc(x(Math.min(hist.length-1,e.ep-1)),y(e.v),4,0,7);g.fill();});
+  g.fillStyle="#555";g.font="12px sans-serif";g.textAlign="center";g.fillText("판수 →   회색: 연습 점수(탐험 포함, 자주 죽음) · 주황: 시험 점수(탐험 없이 20판 평균)",W/2,Hh-8);}
+function evalScore(agent,rw,opts={},n=20){const save=agent.rng;agent.rng=mkRng(1);let t=0;for(let k=0;k<n;k++)t+=runEpisode(agent,rw,mkRng(700+k),{greedy:true,...opts}).score;agent.rng=save;return +(t/n).toFixed(1);}
+function statsUI(){$("ep").textContent=hist.length;const e=evalHist.length?evalHist[evalHist.length-1].v:"-";$("avg20").textContent=e;$("best").textContent=hist.length?Math.max(...hist):0;$("d-ep").textContent=hist.length;scoreUI();}
+function trainRun(n,opts={}){
+  if(training)return; training=true;$("b-train").disabled=true; A.eps=(+$("r-eps").value)/100; const rw=rewards(); const chunk=25; let done=0;
+  const loop=()=>{ for(let k=0;k<chunk&&done<n;k++,done++){hist.push(runEpisode(A,rw,envRng,opts).score);} evalHist.push({ep:hist.length,v:evalScore(A,rw,opts)}); statsUI();drawChart();
+    let rec=null; for(let k=0;k<3;k++){const r=runEpisode(A,rw,mkRng(500+hist.length+k*31),{greedy:true,record:true,...opts}); if(!rec||r.score>rec.score)rec=r;}
+    $("a-info").innerHTML=`<b>${hist.length}</b>판 배운 뱀의 플레이 — 이번 판 ${rec.score}점`;
+    const fin=()=>{ if(done<n)loop(); else {training=false;$("b-train").disabled=false;toast("학습 완료 — 활동지에 기록");opts.after&&opts.after();} };
+    if($("fast").checked){drawBoard(actx,rec.frames[rec.frames.length-1]);setTimeout(fin,10);} else playFrames(actx,rec.frames.slice(0,90),30,fin);
+  }; loop();
+}
+function playGreedy(){ if(!hist.length){toast("먼저 학습하세요");return;} let rec=null;const base=Date.now()%100000;for(let k=0;k<3;k++){const r=runEpisode(A,rewards(),mkRng(base+k*7),{greedy:true,record:true});if(!rec||r.score>rec.score)rec=r;} $("a-info").innerHTML=`AI 플레이 — ${rec.score}점 (${rec.steps}걸음)`; playFrames(actx,rec.frames,10); }
+
+/* ═══════════ L2 탐험 실험 ═══════════ */
+function epsAuto(){
+  const base=rewards(); $("e-stat").textContent="계산 중…"; setTimeout(()=>{
+    const res={};
+    for(const e of [0,10,40,100]){const ag=new Agent();ag.eps=e/100;const rng=mkRng(99);let best=0;for(let k=0;k<300;k++){best=Math.max(best,runEpisode(ag,base,rng).score);}res[e]=evalScore(ag,base,{},30);$("e"+e).textContent=res[e];$("e"+e+"b").textContent=best;}
+    const order=[0,10,40,100].sort((a,b)=>res[b]-res[a]); $("e-stat").innerHTML="1등: <b>"+order[0]+"%</b>";
+    const n=$("l2-note");n.style.display="block";
+    n.innerHTML=`결과: ${order.map(e=>e+"%("+res[e]+"점)").join(" > ")}. <b>100%</b>는 배운 것을 전혀 안 쓰니 늘 초보입니다. 그런데 <b>0%</b>가 꼴찌가 아니죠? 이 뱀은 아무 방향도 안 가 봐도 <b>부딪혀 죽는 경험</b>이 곧 탐험이었기 때문입니다 — 좁은 세계에서는 실수만으로도 충분히 배웁니다. 탐험을 늘릴수록 연습 중에 자꾸 죽어 배운 것을 망칩니다(회색 선). 그럼 탐험은 언제 필요할까요? → 아래 독사과 세계로.`;
+  },30);
+}
+function epsPoison(){
+  const base=rewards(); $("ep-stat").textContent="계산 중…"; setTimeout(()=>{
+    const out={};
+    for(const e of [0,5]){const ag=new Agent();ag.eps=e/100;const rng=mkRng(99);for(let k=0;k<600;k++)runEpisode(ag,base,rng,{poison:true,sensor:true});let pz=0,sc=0;for(let k=0;k<40;k++){const r=runEpisode(ag,base,mkRng(700+k),{greedy:true,poison:true,sensor:true});sc+=r.score;if(r.end==="poison")pz++;}out[e]={pz,sc:(sc/40).toFixed(1)};}
+    $("ep-stat").innerHTML=`0%: 독사과 사망 <b>${out[0].pz}</b>/40 · 5%: <b>${out[5].pz}</b>/40`;
+    const n=$("l2-note2");n.style.display="block";
+    n.innerHTML= out[0].pz>out[5].pz ? "독사과처럼 <b>새로운 것이 있는 세계</b>에서는 조금의 탐험(5%)이 독을 피하는 법을 더 잘 찾아냈습니다. 정리: 탐험은 공짜가 아니지만, 세상이 넓고 낯설수록 필요하다. 사람도 그렇지 않나요?" : "이번엔 차이가 작았습니다 — 여러 번 돌려 보면 5%가 독사과를 더 잘 피하는 경향이 있습니다. 결론은 같습니다: 낯선 것이 있는 세계일수록 탐험이 필요하다.";
+  },30);
+}
+
+/* ═══════════ L3 함정 ═══════════ */
+const tctx=$("tcv").getContext("2d"); let TRAP=null;
+function preset(btn,f,d,s,k){document.querySelectorAll(".preset").forEach(b=>b.classList.remove("on"));btn.classList.add("on");$("r-food").value=f;$("r-die").value=d;$("r-step").value=s;rwUI();TRAP=k;$("t-info").textContent=`함정 ${k} 선택 — 보상: 먹이 ${f>=0?"+":""}${f}, 죽음 ${d>=0?"+":""}${d}, 걸음 ${s>=0?"+":""}${s}`;}
+function trapRun(){ if(!TRAP){toast("함정을 먼저 고르세요");return;} resetAI(); $("fast").checked=true; $("r-eps").value=5;rwUI();
+  trainRun(300,{after:()=>{ const rec=runEpisode(A,rewards(),mkRng(77),{greedy:true,record:true}); playFrames(tctx,rec.frames.slice(0,240),20,null,{dead:(rec.end==="starve"||rec.end==="cap")?"먹지 않고 돌기만…":undefined});
+    const s=hist.slice(-20),m=(s.reduce((a,b)=>a+b,0)/s.length).toFixed(1); $("t-info").innerHTML=`함정 ${TRAP} 학습 결과 — 최근 20판 평균 <b>${m}</b>점, 마지막 판 ${rec.steps}걸음`;
+    const msg={A:"먹이는 0점, 살아만 있으면 +1이니 AI의 정답은 <b>먹지 않고 안전하게 뱅뱅 도는 것</b>. 우리는 ‘오래 살아라’를 줬을 뿐인데 AI는 ‘아무것도 하지 마라’로 이해했습니다 — 숨바꼭질의 박스 서핑과 같은 종류의 일.",
+      B:"죽음이 +10이면 AI가 배운 최고의 전략은 <b>가장 빨리 죽기</b>. 부호 하나가 목표를 뒤집습니다. AI는 우리 의도를 모릅니다 — 숫자만 봅니다.",
+      C:"한 걸음이 −12면 한 걸음 걷는 것이 죽는 것(−10)보다 손해입니다. AI의 결론: <b>사는 것이 손해이니 빨리 죽자.</b> 우리는 ‘빨리 가라’를 주려 했는데 AI는 ‘살지 마라’로 읽었습니다. 벌의 크기도 설계입니다."}[TRAP];
+    const n=$("l3-note");n.style.display="block";n.innerHTML=msg+"<br><br>→ L1로 돌아가 보상을 고쳐 재학습하고, 무엇을 얼마로 바꿨는지 <b>AI 처방전</b>에 쓰세요.";}});
+}
+
+/* ═══════════ L4 독사과 ═══════════ */
+const pctx=$("pcv").getContext("2d"); let PA=null;
+function poisonRun(){ if(!hist.length){toast("먼저 L1에서 학습하세요 (기본 보상 권장)");return;}
+  let deaths=0,pois=0; for(let k=0;k<50;k++){const r=runEpisode(A,rewards(),mkRng(900+k),{greedy:true,poison:true});if(r.end==="poison")pois++;else if(r.end==="die")deaths++;}
+  const rec=runEpisode(A,rewards(),mkRng(905),{greedy:true,record:true,poison:true}); playFrames(pctx,rec.frames,10,null,{dead:rec.end==="poison"?"독사과를 먹었다!":undefined});
+  $("p-info").innerHTML=`50판 실행 — 독사과로 죽음 <b>${pois}</b>회 · 벽/몸 <b>${deaths}</b>회`;
+  const n=$("l4-note");n.style.display="block";n.innerHTML="이 뱀의 ‘눈’(상태)에는 <b>독사과라는 칸이 없습니다</b>. 위험 3개와 먹이 방향만 봅니다. 그래서 독사과를 보고도 그냥 지나가거나, 먹이라고 착각합니다. 배운 세계에 없던 것은 존재하지 않는 것과 같습니다 — 실습 1의 ‘회색 낱말’과 같은 일입니다.";}
+function poisonTrain(sensor){ PA=new Agent();PA.eps=0.1; const rw=rewards(); const rng=mkRng(333); let sc=[],pois=0;
+  for(let k=0;k<600;k++){const r=runEpisode(PA,rw,rng,{poison:true,sensor});sc.push(r.score);if(k>=500&&r.end==="poison")pois++;}
+  const m=(sc.slice(-100).reduce((a,b)=>a+b,0)/100).toFixed(1);
+  const rec=runEpisode(PA,rw,mkRng(906),{greedy:true,record:true,poison:true,sensor}); playFrames(pctx,rec.frames,10,null,{dead:rec.end==="poison"?"독사과를 먹었다!":undefined});
+  $("p-info").innerHTML=`독사과 세계에서 600판 학습 (${sensor?"센서 있음":"센서 없음"}) — 최근 100판 평균 <b>${m}</b>점 · 독사과 사망 <b>${pois}</b>/100`;
+  const n=$("l4-note");n.style.display="block";
+  n.innerHTML= sensor? "센서를 달자 상태에 ‘독이 가까이 어느 쪽에 있나’가 추가되었고, AI는 <b>보상만으로 독을 피하는 법을 배웠습니다.</b> 가르친 것은 규칙이 아니라 ‘볼 수 있는 눈’과 ‘결과’뿐입니다. → 좋은 AI = 좋은 보상 + 세상을 볼 수 있는 입력(데이터)."
+   : "재학습해도 독사과 사망이 줄지 않습니다. 아무리 오래 배워도 <b>보이지 않는 것은 배울 수 없기 때문</b>입니다. 그럼 무엇을 바꿔야 할까요? 보상? 판수? — 아니면 AI의 ‘눈’?";}
+
+/* ═══════════ 실시간 대결 ═══════════ */
+const dh=$("dh").getContext("2d"), da=$("da").getContext("2d"); let DH=null,DA=null,dTimer=null,dRec={w:0,l:0},dGrace=0;
+function duelStart(){ if(!hist.length){toast("먼저 L1에서 학습하세요");return;} clearInterval(dTimer);
+  DH=new Snake(mkRng(Date.now()%9999)); DA=new Snake(mkRng(Date.now()%9999+1)); let sA=DA.state(false); dGrace=0;
+  drawBoard(dh,snap(DH)); drawBoard(da,snap(DA)); $("d-hs").textContent=0;$("d-as").textContent=0; $("d-note").style.display="none";
+  dTimer=setInterval(()=>{
+    if(DH.alive){DH.step(0);$("d-hs").textContent=DH.score;drawBoard(dh,snap(DH));}
+    if(DA.alive){const a=A.act(sA,true);DA.step(a);sA=DA.state(false);$("d-as").textContent=DA.score;drawBoard(da,snap(DA));}
+    if(!DH.alive){dGrace++;} if((!DH.alive&&!DA.alive)||(!DH.alive&&dGrace>40)||DA.steps>250||DH.steps>250){clearInterval(dTimer);
+      const win=DH.score>DA.score,tie=DH.score===DA.score; if(win)dRec.w++; else if(!tie)dRec.l++; $("d-rec").textContent=`${dRec.w}승 ${dRec.l}패`;
+      const n=$("d-note");n.style.display="block";n.innerHTML= tie?"무승부!":win?`🧑 내가 이겼다 (${DH.score}:${DA.score}). AI에게 판을 더 주면 어떻게 될까요? → ‘+1000판’ 뒤 다시 대결`:`🤖 AI 승 (${DH.score}:${DA.score}). 이 AI는 ${hist.length}판을 배웠습니다 — 사람은 몇 판 만에 이만큼 배우나요?`;}
+  },200);
+}
+function dDir(dx,dy){ if(!DH||!DH.alive)return; const nd=DIRS.findIndex(d=>d[0]===dx&&d[1]===dy); if((nd+2)%4===DH.dir)return; DH.dir=nd; }
+let dsx=0,dsy=0; $("dh").addEventListener("pointerdown",e=>{dsx=e.clientX;dsy=e.clientY;}); $("dh").addEventListener("pointerup",e=>{const dx=e.clientX-dsx,dy=e.clientY-dsy;if(Math.abs(dx)<20&&Math.abs(dy)<20)return;if(Math.abs(dx)>Math.abs(dy))dDir(Math.sign(dx),0);else dDir(0,Math.sign(dy));});
+document.addEventListener("keydown",e=>{const m={ArrowRight:[1,0],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowUp:[0,-1]};if(m[e.key]&&DH&&DH.alive){e.preventDefault();dDir(...m[e.key]);}});
+
+/* ═══════════ 뽑기 게임 (밴딧) ═══════════ */
+const BD_P=[0.25,0.5,0.35,0.7,0.15]; let bdLeft=30,bdWin=0,bdRng=mkRng(2026),bdPulls=[0,0,0,0,0],bdHits=[0,0,0,0,0];
+function bdDraw(){ $("slots").innerHTML=BD_P.map((p,i)=>`<div class="slot" id="slot${i}"><button onpointerdown="bdPull(${i})">${i+1}</button><small>${bdPulls[i]}번 · 당첨 ${bdHits[i]}</small></div>`).join(""); $("bd-left").textContent=bdLeft;$("bd-win").textContent=bdWin; }
+function bdPull(i){ if(bdLeft<=0){toast("30번을 다 썼어요 — ‘다시’");return;} bdLeft--;bdPulls[i]++; const hit=bdRng()<BD_P[i]; if(hit){bdWin++;bdHits[i]++;}
+  bdDraw(); const el=$("slot"+i); el.classList.add(hit?"win":"lose"); setTimeout(()=>el.classList.remove("win","lose"),350);
+  if(bdLeft===0){ const n=$("bd-note");n.style.display="block"; const best=BD_P.indexOf(Math.max(...BD_P));
+    n.innerHTML=`30번 중 <b>${bdWin}</b>번 당첨. 진짜 확률은 [${BD_P.map(p=>Math.round(p*100)+"%").join(", ")}] — 최고는 ${best+1}번 기계였습니다. 여러분은 몇 번째 뽑기에서 ${best+1}번을 발견했나요? 발견 뒤에도 다른 기계를 시험해 봤나요? 그 선택이 바로 <b>탐험 vs 활용</b>입니다.`; } }
+function bdReset(){bdLeft=30;bdWin=0;bdPulls=[0,0,0,0,0];bdHits=[0,0,0,0,0];bdRng=mkRng(2026+Math.floor(Math.random()*1000));$("bd-note").style.display="none";bdDraw();}
+function bdSim(eps,trials=200){ const rng=mkRng(4242); let tot=0,found=0; const best=BD_P.indexOf(Math.max(...BD_P));
+  for(let t=0;t<trials;t++){ const est=[0,0,0,0,0],n=[0,0,0,0,0]; let w=0,last=0;
+    for(let k=0;k<100;k++){ let i; if(rng()<eps)i=Math.floor(rng()*5); else {i=0;for(let j=1;j<5;j++)if(est[j]>est[i])i=j;} const hit=rng()<BD_P[i]; n[i]++; est[i]+=( (hit?1:0)-est[i] )/n[i]; if(hit)w++; last=i; }
+    tot+=w; let bi=0;for(let j=1;j<5;j++)if(est[j]>est[bi])bi=j; if(bi===best)found++; }
+  return {avg:(tot/trials).toFixed(1),found:Math.round(found/trials*100)}; }
+function bdAI(){ const E=[0,10,30,90]; const r={}; for(const e of E){r[e]=bdSim(e/100);$("bd"+e).textContent=r[e].avg;$("bd"+e+"f").textContent=r[e].found+"%";}
+  const order=E.slice().sort((a,b)=>r[b].avg-r[a].avg); const n=$("bd-note2");n.style.display="block";
+  n.innerHTML=`결과: ${order.map(e=>e+"%("+r[e].avg+"번)").join(" > ")}. <b>0%</b>는 처음 당첨된 기계를 평생 고집해 최고 기계를 ${r[0].found}%밖에 못 찾습니다(갇힘). <b>90%</b>는 최고 기계를 찾아 놓고도 거의 아무 데나 당겨 낭비합니다. 그 사이 어딘가(${order[0]}%)가 가장 많이 당첨됩니다 — <b>너무 적으면 갇히고, 너무 많으면 낭비한다.</b> 유튜브 추천도 이 줄타기를 합니다: 좋아하는 것만 보여 줄까(활용), 가끔 새것을 끼워 넣을까(탐험)?`; }
+
+/* ═══════════ 도전: 격자 술래잡기 ═══════════ */
+const G=6, WALLS=new Set(["2,2","2,3","3,2","3,3"]); const gctx=$("gcv").getContext("2d");
+let TQ=new Map(),RQ=new Map(),tagRng=mkRng(5),tagHist=[];
+const q4=(M,s)=>{let a=M.get(s);if(!a){a=[0,0,0,0];M.set(s,a);}return a;};
+function tagState(me,other){const dx=Math.max(-5,Math.min(5,other[0]-me[0]))+5,dy=Math.max(-5,Math.min(5,other[1]-me[1]))+5;return ((dx*11+dy)*36+me[0]*6+me[1]);}
+function mv(p,a){const d=DIRS[a],x=p[0]+d[0],y=p[1]+d[1];if(x<0||y<0||x>=G||y>=G||WALLS.has(x+","+y))return p;return [x,y];}
+function tagEpisode(learnT,learnR,eps,record){
+  let T=[0,0],R=[5,5],frames=record?[[T,R]]:null,caught=false,t;
+  for(t=0;t<40&&!caught;t++){
+    const sT=tagState(T,R),aT=(tagRng()<eps)?Math.floor(tagRng()*4):q4(TQ,sT).indexOf(Math.max(...q4(TQ,sT))); const T2=mv(T,aT);
+    const sR=tagState(R,T2),aR=(tagRng()<eps)?Math.floor(tagRng()*4):q4(RQ,sR).indexOf(Math.max(...q4(RQ,sR))); const R2=mv(R,aR);
+    caught=(T2[0]===R2[0]&&T2[1]===R2[1]);
+    const rT=caught?10:-0.1,rR=caught?-10:1;
+    if(learnT){const q=q4(TQ,sT),q2=q4(TQ,tagState(T2,R2));q[aT]+=0.15*(rT+(caught?0:0.9*Math.max(...q2))-q[aT]);}
+    if(learnR){const q=q4(RQ,sR),q2=q4(RQ,tagState(R2,T2));q[aR]+=0.15*(rR+(caught?0:0.9*Math.max(...q2))-q[aR]);}
+    T=T2;R=R2; if(frames)frames.push([T,R]);
+  }
+  return {caught,frames};
+}
+function tagDraw(f,caught){const W=gctx.canvas.width,c=W/G;gctx.clearRect(0,0,W,W);gctx.fillStyle="#FAFAF7";gctx.fillRect(0,0,W,W);
+  for(let x=0;x<G;x++)for(let y=0;y<G;y++){gctx.strokeStyle="#EDEDE8";gctx.strokeRect(x*c,y*c,c,c);if(WALLS.has(x+","+y)){gctx.fillStyle="#B0B8C4";gctx.fillRect(x*c,y*c,c,c);}}
+  if(!f)return; const [T,R]=f; gctx.fillStyle="#006D77";gctx.beginPath();gctx.arc(R[0]*c+c/2,R[1]*c+c/2,c*.32,0,7);gctx.fill(); gctx.fillStyle="#D05A2A";gctx.beginPath();gctx.arc(T[0]*c+c/2,T[1]*c+c/2,c*.32,0,7);gctx.fill();
+  if(caught){gctx.fillStyle="rgba(208,90,42,.9)";gctx.font="bold 26px sans-serif";gctx.textAlign="center";gctx.fillText("잡혔다!",W/2,W/2);}}
+function tagTrain(){ for(let round=0;round<3;round++){ for(let k=0;k<300;k++){tagHist.push(tagEpisode(true,false,0.15).caught?1:0);} for(let k=0;k<300;k++){tagHist.push(tagEpisode(false,true,0.15).caught?1:0);} }
+  const r=tagHist.slice(-100).reduce((a,b)=>a+b,0);$("tag-rate").textContent=r+"%";toast("학습 완료 — 한 판 보기");tagPlay();}
+function tagPlay(){const e=tagEpisode(false,false,0,true);let i=0;const h=setInterval(()=>{tagDraw(e.frames[i],e.caught&&i===e.frames.length-1);i++;if(i>=e.frames.length)clearInterval(h);},260);}
+function tagReset(){TQ=new Map();RQ=new Map();tagHist=[];$("tag-rate").textContent="-";tagDraw(null);}
+
+rwUI(); hDraw(); drawBoard(actx,null); bdDraw(); scoreUI(); drawBoard(dh,null,{msg:"나"}); drawBoard(da,null,{msg:"AI"}); drawBoard(tctx,null,{msg:"함정 선택"}); drawBoard(pctx,null,{msg:"독사과 세계"}); tagDraw(null);
+</script>
+</body>
+</html>

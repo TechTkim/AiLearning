@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>우리 반 스팸 필터 AI — 정보 vs 광고</title>
+<style>
+:root{--navy:#1B3A6B;--teal:#006D77;--orange:#D05A2A;--green:#2E7D32;--red:#C43C2A;--paper:#F6F4EE;--ink:#232A35;--gray:#7B8494;--line:#DCD8CE;--light:#F4F6F9;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--paper);color:var(--ink);}
+header{background:var(--navy);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+header h1{font-size:20px;font-weight:800;}
+header .sub{font-size:13px;opacity:.8;}
+nav{display:flex;gap:6px;padding:10px 12px;background:#fff;border-bottom:2px solid var(--line);overflow-x:auto;position:sticky;top:0;z-index:5;}
+nav button{flex:0 0 auto;font-size:14px;font-weight:700;padding:10px 14px;border-radius:99px;border:2px solid var(--line);background:#fff;color:var(--gray);}
+nav button.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+nav button.un{border-color:#B8D8DA;} nav button.un.on{background:var(--teal);border-color:var(--teal);}
+main{max-width:980px;margin:0 auto;padding:16px;}
+.panel{display:none;} .panel.on{display:block;animation:fi .25s;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+.card h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+.card h2 .step{display:inline-block;background:var(--orange);color:#fff;font-size:12px;padding:2px 10px;border-radius:99px;margin-right:8px;vertical-align:middle;}
+.hint{font-size:13.5px;color:var(--gray);line-height:1.5;margin-bottom:10px;}
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+.col{flex:1;min-width:260px;}
+textarea{width:100%;min-height:140px;font-size:14px;font-family:inherit;border:2px solid var(--line);border-radius:12px;padding:10px;line-height:1.5;}
+.lab-info{color:var(--teal);font-weight:800;} .lab-ad{color:var(--orange);font-weight:800;}
+.btn{font-size:15px;font-weight:800;padding:12px 20px;border:none;border-radius:12px;color:#fff;background:var(--orange);box-shadow:0 3px 0 #A34018;cursor:pointer;}
+.btn.teal{background:var(--teal);box-shadow:0 3px 0 #004A52;} .btn.navy{background:var(--navy);box-shadow:0 3px 0 #0E2244;} .btn.green{background:var(--green);box-shadow:0 3px 0 #1C5A20;}
+.btn.ghost{background:#fff;color:var(--gray);border:2px solid var(--line);box-shadow:none;}
+.btn:active{transform:translateY(2px);box-shadow:none;} .btn:disabled{opacity:.4;pointer-events:none;}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+.stat{display:inline-block;background:var(--light);border-radius:10px;padding:8px 14px;font-size:14px;margin:4px 4px 4px 0;}
+.stat b{color:var(--navy);}
+.msg{background:var(--light);border-radius:14px;padding:16px;font-size:18px;line-height:1.5;min-height:80px;border:2px solid var(--line);}
+.big2{display:flex;gap:12px;margin-top:12px;}
+.big2 button{flex:1;font-size:20px;font-weight:800;padding:18px;border:none;border-radius:14px;color:#fff;}
+.b-info{background:var(--teal);} .b-ad{background:var(--orange);}
+.bars{margin-top:10px;}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:14px;}
+.bar .lb{width:50px;font-weight:800;}
+.bar .tr{flex:1;height:22px;background:#E6E9EF;border-radius:11px;overflow:hidden;}
+.bar .fl{height:100%;border-radius:11px;transition:width .5s;}
+.bar .pc{width:56px;text-align:right;font-weight:800;}
+.tok{display:inline-block;padding:3px 7px;border-radius:8px;margin:3px 2px;font-size:16px;background:#EEE;}
+.tok.i1{background:#CDE8EA;} .tok.i2{background:#8FCBD0;color:#063A3F;} .tok.a1{background:#F9DCCF;} .tok.a2{background:#F2A57F;color:#4A1A08;}
+.legend{font-size:12.5px;color:var(--gray);margin-top:8px;}
+.quiz-log{font-size:14px;line-height:1.7;margin-top:8px;}
+.ok{color:var(--green);font-weight:800;} .no{color:var(--red);font-weight:800;}
+input[type=text]{width:100%;font-size:16px;padding:12px;border:2px solid var(--line);border-radius:12px;font-family:inherit;}
+input[type=range]{width:100%;}
+.chart{width:100%;height:220px;background:#fff;border:2px solid var(--line);border-radius:12px;}
+.note{background:#FFF3EC;border-left:5px solid var(--orange);border-radius:0 12px 12px 0;padding:10px 14px;font-size:14px;line-height:1.55;margin-top:10px;}
+.note.g{background:#F1F8F2;border-color:var(--green);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;} th{background:var(--light);}
+.pts{width:100%;height:340px;background:#fff;border:2px solid var(--line);border-radius:12px;touch-action:none;}
+.grp{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.grp input{flex:1;min-width:140px;}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 22px;border-radius:99px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:20;}
+.toast.on{opacity:1;}
+</style>
+</head>
+<body>
+<header><div><h1>우리 반 스팸 필터 AI</h1><div class="sub">정보 vs 광고 — 우리 반이 만든 문자로 배우는 지도학습 · 취향 지도(비지도학습)</div></div></header>
+<nav>
+  <button class="on" onclick="tab(0,this)">① 내가 먼저</button>
+  <button onclick="tab(1,this)">② 데이터·학습</button>
+  <button onclick="tab(2,this)">③ 판정·근거</button>
+  <button onclick="tab(3,this)">④ 데이터 양 실험</button>
+  <button onclick="tab(4,this)">⑤ 편향 실험</button>
+  <button class="un" onclick="tab(5,this)">⑥ 취향 지도</button>
+</nav>
+<main>
+
+<!-- ① 내가 먼저 -->
+<section class="panel on" id="p0">
+  <div class="card">
+    <h2><span class="step">1</span>AI가 하기 전에, 내가 먼저 분류해 보기</h2>
+    <div class="hint">문자 8개를 보고 <b>정보</b>인지 <b>광고</b>인지 고르세요. 그 다음 "왜 그렇게 판단했는지" 활동지에 적습니다 — 이것이 AI가 해야 할 일과 같습니다.</div>
+    <div class="msg" id="q-msg">시작을 누르세요</div>
+    <div class="big2"><button class="b-info" onclick="answer('info')">정보</button><button class="b-ad" onclick="answer('ad')">광고</button></div>
+    <div class="btnrow"><button class="btn navy" onclick="startQuiz()">시작 / 다시</button><span class="stat">진행 <b id="q-n">0</b>/8 · 정답 <b id="q-c">0</b></span></div>
+    <div class="quiz-log" id="q-log"></div>
+  </div>
+</section>
+
+<!-- ② 데이터·학습 -->
+<section class="panel" id="p1">
+  <div class="card">
+    <h2><span class="step">2</span>학습 데이터 — 한 줄에 문자 하나</h2>
+    <div class="hint">기본 예시가 들어 있습니다. 멘티미터로 모은 <b>우리 반 문자</b>를 각 칸 아래에 붙여 넣으면 학급 데이터가 됩니다. (교사 화면에서 한 번 붙여 넣고 미러링해도 되고, 짝별로 붙여 넣어도 됩니다)</div>
+    <div class="row">
+      <div class="col"><div class="lab-info">정보 문자 (<span id="n-info">0</span>개)</div><textarea id="t-info"></textarea></div>
+      <div class="col"><div class="lab-ad">광고 문자 (<span id="n-ad">0</span>개)</div><textarea id="t-ad"></textarea></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" onclick="train()">이 데이터로 학습하기</button>
+      <button class="btn ghost" onclick="loadSeed()">기본 예시로 되돌리기</button>
+      <span class="stat" id="train-stat">아직 학습 전</span>
+    </div>
+    <div class="note g" id="train-note" style="display:none"></div>
+  </div>
+  <div class="card">
+    <h2>이 AI는 어떻게 배우나</h2>
+    <div class="hint">문자를 낱말 조각으로 쪼개고, 각 조각이 <b>정보 문자에 얼마나 자주</b> / <b>광고 문자에 얼마나 자주</b> 나왔는지 셉니다. 그게 전부입니다. 규칙을 적어 준 사람은 없고, 세어서 배운 <b>패턴</b>만 있습니다. 새 문자가 오면 조각마다 "정보 쪽 점수 / 광고 쪽 점수"를 더해 큰 쪽으로 판정합니다.</div>
+    <div id="top-words"></div>
+  </div>
+</section>
+
+<!-- ③ 판정·근거 -->
+<section class="panel" id="p2">
+  <div class="card">
+    <h2><span class="step">3</span>새 문자 판정 — 그리고 ‘왜’</h2>
+    <div class="hint">먼저 <b>내 예측</b>을 활동지에 쓰고, 문자를 입력해 판정을 누르세요. AI는 판정과 함께 <b>근거가 된 낱말</b>을 색으로 보여 줍니다.</div>
+    <input type="text" id="p-in" placeholder="예) 내일 체육대회는 운동장에서 9시에 시작합니다">
+    <div class="btnrow">
+      <button class="btn teal" onclick="predictUI()">판정</button>
+      <button class="btn ghost" onclick="sample('info')">정보 예문</button><button class="btn ghost" onclick="sample('ad')">광고 예문</button><button class="btn ghost" onclick="sample('trick')">헷갈리는 예문</button>
+    </div>
+    <div class="bars" id="p-bars"></div>
+    <div id="p-tokens" style="margin-top:10px"></div>
+    <div class="legend">색이 진할수록 판정에 크게 기여한 낱말 · 청록 = 정보 쪽 · 주황 = 광고 쪽 · 회색 = 처음 보는 낱말(배운 적 없음)</div>
+    <div class="note" id="p-note" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ④ 데이터 양 -->
+<section class="panel" id="p3">
+  <div class="card">
+    <h2><span class="step">4</span>데이터가 늘면 정확도는?</h2>
+    <div class="hint">데이터를 섞어 일부(라벨별 최대 8개)를 <b>시험용</b>으로 떼어 놓고 나머지로 배웁니다. 운의 영향을 줄이려고 <b>12번 다르게 섞어 평균</b>을 냅니다. 슬라이더를 움직이기 전에 <b>예측</b>을 먼저 쓰세요. (같은 데이터면 결과는 항상 같습니다)</div>
+    <div class="row"><div class="col"><input type="range" id="q-range" min="2" max="10" value="2" oninput="qtyUI()"><div class="stat">라벨별 학습 데이터 <b id="q-val">2</b>개 → 시험 정확도 <b id="q-acc">-</b></div></div></div>
+    <div class="btnrow"><button class="btn navy" onclick="qtyCurve()">2개부터 전부까지 자동 실험 (곡선 그리기)</button></div>
+    <canvas class="chart" id="q-chart" width="900" height="220"></canvas>
+    <div class="note" id="q-note" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ⑤ 편향 -->
+<section class="panel" id="p4">
+  <div class="card">
+    <h2><span class="step">5</span>편향 실험 — 치와와머핀의 문자판</h2>
+    <div class="hint">광고 문자를 <b>‘무료’가 들어간 것만</b>으로 학습시키면 어떻게 될까요? 먼저 예측: 아래 문자는 정보일까, 광고일까? AI는 뭐라고 할까?</div>
+    <div class="msg">무료 급식 신청서는 내일까지 담임 선생님께 제출하세요</div>
+    <div class="btnrow">
+      <button class="btn" onclick="biasRun()">편향 데이터로 학습 → 판정</button>
+      <button class="btn teal" onclick="biasFix()">데이터 고쳐서 다시 (‘무료’ 없는 광고 추가)</button>
+    </div>
+    <div class="bars" id="b-bars"></div><div id="b-tokens" style="margin-top:8px"></div>
+    <div class="note" id="b-note" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ⑥ 취향 지도 -->
+<section class="panel" id="p5">
+  <div class="card" style="border-color:#B8D8DA">
+    <h2 style="color:var(--teal)"><span class="step" style="background:var(--teal)">비지도</span>우리 반 취향 지도 — 정답표 없이 묶기</h2>
+    <div class="hint">두 질문에 1~10점으로 답한 우리 반 점수를 붙여 넣거나(한 줄에 "x, y"), 화면을 눌러 점을 찍으세요. <b>정답표는 없습니다.</b> ‘묶기’를 누르면 AI가 비슷한 점끼리 3그룹으로 나눕니다. 그룹의 <b>이름</b>은 AI가 못 붙입니다 — 여러분이 붙이세요.</div>
+    <div class="row">
+      <div class="col"><textarea id="k-in" style="min-height:90px" placeholder="예)&#10;8, 3&#10;2, 9&#10;7, 7"></textarea>
+        <div class="btnrow"><button class="btn ghost" onclick="kLoad()">붙여 넣은 점 불러오기</button><button class="btn ghost" onclick="kSeed()">예시 30명</button><button class="btn ghost" onclick="kClear()">지우기</button></div></div>
+      <div class="col"><div class="stat">가로축 = <b id="ax-x">매운 음식 좋아함</b> (1~10)</div><div class="stat">세로축 = <b id="ax-y">아침형 인간</b> (1~10)</div>
+        <div class="btnrow"><input type="text" id="ax-xi" placeholder="가로축 질문 바꾸기" style="width:48%"><input type="text" id="ax-yi" placeholder="세로축 질문 바꾸기" style="width:48%"><button class="btn ghost" onclick="axSet()">축 이름 적용</button></div></div>
+    </div>
+    <canvas class="pts" id="k-cv" width="900" height="340"></canvas>
+    <div class="btnrow"><button class="btn teal" onclick="kRun()">묶기 (3그룹)</button><button class="btn ghost" onclick="kStep()">한 단계씩 보기</button><span class="stat">단계 <b id="k-it">0</b> · 점 <b id="k-n">0</b>개</span></div>
+    <div class="grp"><input type="text" id="g0" placeholder="● 그룹 1 이름 붙이기"><input type="text" id="g1" placeholder="● 그룹 2 이름 붙이기"><input type="text" id="g2" placeholder="● 그룹 3 이름 붙이기"></div>
+    <div class="note g">지도학습(①~⑤)에서는 <b>사람이 정답표</b>를 만들었고, 여기서는 정답표 없이 AI가 <b>구조(묶음)</b>만 찾았습니다. 묶음에 의미를 주는 것은 여전히 사람의 일입니다.</div>
+  </div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═════════ 기본 예시 데이터 (교사 제작) ═════════ */
+const SEED_INFO=[
+"내일 체육대회는 9시에 운동장에서 시작합니다","수학 수행평가 제출 기한은 금요일까지입니다","오늘 급식은 김치찌개와 계란말이입니다","동아리 모임 장소가 과학실로 바뀌었어요","엄마 오늘 학원 끝나고 바로 집에 갈게","내일 준비물은 색연필과 가위입니다","기말고사 시간표가 학급 게시판에 올라왔어요","비 예보가 있으니 우산 챙기세요","도서관 대출 도서 반납일은 다음 주 월요일입니다","학부모 상담 주간은 10월 둘째 주입니다",
+"오늘 방과후 수업은 휴강입니다","친구야 내일 몇 시에 만날까","진로 특강이 3교시에 강당에서 열립니다","교실 청소 당번은 3모둠입니다","독감 예방접종 안내문을 가정으로 보냈습니다","내일 소풍 집합 장소는 정문 앞입니다","봉사활동 확인서는 담임 선생님께 제출하세요","다음 주 화요일은 개교기념일로 휴업합니다","과학 실험 보고서 양식은 학급 카페에 있습니다","오늘 축구부 연습은 4시 30분에 시작해요",
+"내일 1교시는 영어 듣기 평가입니다","학급 회의는 점심시간에 교실에서 합니다","수학여행 사전 답사 결과를 안내합니다","오늘 저녁 7시에 가족 식사 있으니 늦지 마","안전교육 이수증은 다음 주까지 제출해 주세요","체육복은 매주 수요일에 입고 옵니다","방학 중 도서관 개방 시간은 9시부터 5시까지입니다","교과서 배부는 목요일 아침에 합니다","현장체험학습 신청서는 내일까지 제출하세요","오늘 학원 셔틀은 정문에서 4시에 출발합니다","다음 주 월요일 애국조회는 강당에서 합니다","학생증 재발급은 교무실에서 신청하세요"];
+const SEED_AD=[
+"지금 가입하면 첫 달 무료! 놓치지 마세요","오늘만 특가 50% 할인 클릭하세요","축하합니다 경품에 당첨되셨습니다 링크 확인","한정 수량 선착순 100명 지금 바로 구매","최신 게임 아이템 무료 지급 이벤트 참여하기","무이자 12개월 지금 상담 신청하세요","이 문자를 받은 분께만 특별 쿠폰 증정","수강료 무료 체험 신청은 아래 링크로","광고 신제품 출시 기념 1+1 행사 진행 중","연락처 등록하면 상품권 지급 무료 문자",
+"오늘 자정까지 최대 70% 세일 서두르세요","단 3일 파격 특가 지금 확인하세요","무료 배송 이벤트 지금 주문하면 사은품까지","회원 전용 비밀 쿠폰 도착 지금 클릭","할인 쿠폰 마감 임박 놓치면 후회","포인트 2배 적립 이벤트 오늘 하루만","공짜로 드립니다 지금 신청하세요","특별 할인가 문의는 지금 바로 전화","신규 가입 이벤트 무료 상품권 증정","광고 수신거부 080 무료 쿠폰 받기",
+"오늘 밤 12시까지 반값 할인 놓치지 마세요","친구 추천하면 둘 다 5000원 쿠폰 지급","지금 다운로드하면 프리미엄 한 달 무료","마지막 기회 재고 소진 시 종료","VIP 고객님께만 드리는 특별 혜택 확인","신상품 런칭 기념 전 품목 30% 할인","이벤트 응모하고 최신 스마트폰 받아가세요","지금 전화 주시면 추가 할인 상담","광고 카드 발급 시 캐시백 10만원","오늘 가입 고객 한정 사은품 3종 증정","앱 설치하면 즉시 쿠폰 2장 지급","선착순 마감 임박 지금 클릭하세요"];
+/* 편향 데이터: 광고는 전부 '무료' 포함 */
+const BIAS_AD=["첫 달 무료 지금 가입","무료 쿠폰 받아가세요","무료 체험 신청 클릭","무료 배송 이벤트","게임 아이템 무료 지급","무료 상담 신청하세요","무료 상품권 증정","무료 강의 오픈 지금 신청","무료 문자 이벤트 참여","오늘만 무료 클릭"];
+const BIAS_FIX=["오늘만 특가 50% 할인 클릭","한정 수량 선착순 구매하세요","경품 당첨 링크 확인","최대 70% 세일 서두르세요","비밀 쿠폰 도착 지금 클릭","포인트 2배 적립 이벤트","특별 할인가 문의는 전화로","1+1 행사 진행 중"];
+const BIAS_FIX_INFO=["무료 급식 안내 가정통신문을 배부했습니다","무료 예방접종 신청서를 보건실에 제출하세요","무료 방과후 수업 신청 기간은 이번 주까지입니다","체험학습 신청서는 내일까지 담임 선생님께 제출하세요","급식 만족도 조사에 참여해 주세요"];
+const SAMPLES={info:["내일 준비물은 실내화와 체육복입니다","수행평가 결과는 다음 주에 안내합니다","오늘 학원 끝나고 편의점 앞에서 보자"],
+  ad:["지금 신청하면 사은품 증정 서두르세요","오늘 하루만 전 상품 반값 클릭","축하합니다 쿠폰이 도착했습니다 링크 확인"],
+  trick:["무료 급식 신청서는 내일까지 제출하세요","학교 홈페이지에 쿠폰 할인 행사 안내가 올라왔어요","선착순으로 동아리 신청을 받습니다 서두르세요"]};
+
+/* ═════════ 토큰화 & 나이브 베이즈 ═════════ */
+function words(s){return s.replace(/[^\p{L}\p{N}\s]/gu," ").trim().split(/\s+/).filter(w=>w.length>0);}
+function feats(word){ /* 낱말 + 2글자 조각 (조사 변화에 강하게) */
+  const f=[word]; if(word.length>=2){for(let i=0;i<word.length-1;i++)f.push("~"+word.slice(i,i+2));} return f;}
+function tokenize(s){const out=[];for(const w of words(s))out.push(...feats(w));return out;}
+let M=null;
+function buildModel(infos,ads){
+  const cnt={info:{},ad:{}},tot={info:0,ad:0},vocab=new Set();
+  const add=(arr,l)=>{for(const s of arr)for(const t of tokenize(s)){cnt[l][t]=(cnt[l][t]||0)+1;tot[l]++;vocab.add(t);}};
+  add(infos,"info");add(ads,"ad");
+  const V=vocab.size||1,prior={info:Math.log((infos.length+1)/(infos.length+ads.length+2)),ad:Math.log((ads.length+1)/(infos.length+ads.length+2))};
+  const lp=(t,l)=>Math.log(((cnt[l][t]||0)+1)/(tot[l]+V));
+  return {cnt,tot,V,vocab,prior,lp,n:{info:infos.length,ad:ads.length}};
+}
+function predict(model,s){
+  let li=model.prior.info,la=model.prior.ad; const contrib=[];
+  for(const w of words(s)){
+    let d=0,seen=false;
+    for(const t of feats(w)){const a=model.lp(t,"info"),b=model.lp(t,"ad");li+=a;la+=b;d+=a-b;if(model.vocab.has(t))seen=true;}
+    contrib.push({w,d,seen});
+  }
+  const m=Math.max(li,la),pi=Math.exp(li-m),pa=Math.exp(la-m),z=pi+pa;
+  return {info:pi/z,ad:pa/z,label:li>=la?"info":"ad",contrib};
+}
+function getData(){
+  const infos=document.getElementById("t-info").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const ads=document.getElementById("t-ad").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  return {infos,ads};
+}
+function $(id){return document.getElementById(id);}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2000);}
+function tab(i,btn){document.querySelectorAll(".panel").forEach((p,k)=>p.classList.toggle("on",k===i));document.querySelectorAll("nav button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");window.scrollTo(0,0);}
+
+/* ── ② 학습 ── */
+function loadSeed(){$("t-info").value=SEED_INFO.join("\n");$("t-ad").value=SEED_AD.join("\n");countUI();}
+function countUI(){const d=getData();$("n-info").textContent=d.infos.length;$("n-ad").textContent=d.ads.length;}
+["t-info","t-ad"].forEach(id=>$(id).addEventListener("input",countUI));
+function train(){
+  const d=getData(); if(d.infos.length<3||d.ads.length<3){toast("라벨별로 3개 이상 필요해요");return;}
+  M=buildModel(d.infos,d.ads);
+  $("train-stat").innerHTML=`학습 완료 — 정보 <b>${d.infos.length}</b>개 · 광고 <b>${d.ads.length}</b>개 · 낱말 조각 <b>${M.V}</b>개`;
+  const tn=$("train-note");tn.style.display="block";
+  tn.innerHTML="학습은 0.1초 만에 끝났습니다 — 한 일은 <b>세는 것</b>뿐이니까요. 아래에서 AI가 어떤 낱말을 ‘광고 냄새’로 배웠는지 보세요.";
+  topWordsUI(); toast("학습 완료");
+}
+function topWordsUI(){
+  if(!M)return;
+  const rows=[];
+  for(const t of M.vocab){ if(t.startsWith("~"))continue;
+    const a=M.lp(t,"info"),b=M.lp(t,"ad"),c=(M.cnt.info[t]||0)+(M.cnt.ad[t]||0); if(c<2)continue;
+    rows.push({t,d:a-b,ci:M.cnt.info[t]||0,ca:M.cnt.ad[t]||0});}
+  rows.sort((x,y)=>x.d-y.d);
+  const ad=rows.slice(0,8),inf=rows.slice(-8).reverse();
+  const mk=(arr,cls)=>arr.map(r=>`<span class="tok ${cls}">${r.t} <small>(정보 ${r.ci}·광고 ${r.ca})</small></span>`).join("");
+  $("top-words").innerHTML=`<div style="margin-top:6px"><b class="lab-ad">광고 냄새가 강한 낱말</b><br>${mk(ad,"a2")}</div><div style="margin-top:10px"><b class="lab-info">정보 냄새가 강한 낱말</b><br>${mk(inf,"i2")}</div>`;
+}
+
+/* ── ③ 판정 ── */
+function barsHTML(r){
+  return `<div class="bar"><span class="lb lab-info">정보</span><div class="tr"><div class="fl" style="width:${(r.info*100).toFixed(0)}%;background:var(--teal)"></div></div><span class="pc">${(r.info*100).toFixed(0)}%</span></div>
+          <div class="bar"><span class="lb lab-ad">광고</span><div class="tr"><div class="fl" style="width:${(r.ad*100).toFixed(0)}%;background:var(--orange)"></div></div><span class="pc">${(r.ad*100).toFixed(0)}%</span></div>`;
+}
+function tokensHTML(r){
+  const mx=Math.max(0.3,...r.contrib.map(c=>Math.abs(c.d)));
+  return r.contrib.map(c=>{ if(!c.seen)return `<span class="tok">${c.w}</span>`;
+    const s=Math.abs(c.d)/mx; const cls=c.d>0?(s>0.5?"i2":"i1"):(s>0.5?"a2":"a1"); return `<span class="tok ${cls}">${c.w}</span>`;}).join("");
+}
+function predictUI(){
+  if(!M){toast("먼저 ②에서 학습하세요");return;}
+  const s=$("p-in").value.trim(); if(!s)return;
+  const r=predict(M,s);
+  $("p-bars").innerHTML=barsHTML(r); $("p-tokens").innerHTML=tokensHTML(r);
+  const n=$("p-note");n.style.display="block";
+  const conf=Math.max(r.info,r.ad);
+  n.innerHTML=`판정: <b class="${r.label==='info'?'lab-info':'lab-ad'}">${r.label==='info'?'정보':'광고'}</b> (확신 ${(conf*100).toFixed(0)}%). `+
+    (conf<0.65?"확신이 낮습니다 — 양쪽 낱말이 섞여 있거나, 처음 보는 낱말(회색)이 많습니다. <b>모른다에 가깝다</b>고 읽으세요.":"") +
+    (r.contrib.filter(c=>!c.seen).length>=Math.ceil(r.contrib.length/2)?" 처음 보는 낱말이 절반 이상입니다 — 배운 적 없는 세계에서는 판정이 불안정합니다.":"");
+}
+function sample(k){const a=SAMPLES[k];$("p-in").value=a[Math.floor(Math.random()*a.length)];predictUI();}
+
+/* ── ④ 데이터 양 ── */
+function seeded(seed=42){let s=seed;return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296;};}
+function splitData(seed){
+  const d=getData(); const rnd=seeded(seed); const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+  const I=sh(d.infos),A=sh(d.ads); const tI=Math.min(8,Math.floor(I.length/3)),tA=Math.min(8,Math.floor(A.length/3));
+  return {testI:I.slice(0,tI),testA:A.slice(0,tA),trI:I.slice(tI),trA:A.slice(tA)};
+}
+function accAt(sp,n){
+  const m=buildModel(sp.trI.slice(0,n),sp.trA.slice(0,n)); let c=0,t=0;
+  for(const s of sp.testI){t++;if(predict(m,s).label==="info")c++;} for(const s of sp.testA){t++;if(predict(m,s).label==="ad")c++;}
+  return t?c/t:0;
+}
+const NSPLIT=12;
+function accAvg(n){let a=0;for(let k=0;k<NSPLIT;k++)a+=accAt(splitData(42+k*7),n);return a/NSPLIT;}
+function maxTrain(){const sp=splitData(42);return Math.min(sp.trI.length,sp.trA.length);}
+function qtyUI(){
+  const mx=maxTrain(); if(mx<2){toast("데이터가 부족합니다 (②에서 라벨별 6개 이상)");return;}
+  const r=$("q-range");r.max=mx; const n=Math.min(parseInt(r.value),mx); r.value=n; $("q-val").textContent=n;
+  $("q-acc").textContent=(accAvg(n)*100).toFixed(0)+"%";
+}
+function qtyCurve(){
+  const mx=maxTrain(); if(mx<2){toast("데이터가 부족합니다");return;}
+  const pts=[]; for(let n=2;n<=mx;n++)pts.push({n,a:accAvg(n)});
+  const cv=$("q-chart"),g=cv.getContext("2d"),W=cv.width,H=cv.height; g.clearRect(0,0,W,H);
+  const L=60,R=20,T=20,B=40; g.strokeStyle="#DDE3EC";g.lineWidth=1;
+  for(let y=0;y<=4;y++){const yy=T+(H-T-B)*(1-y/4);g.beginPath();g.moveTo(L,yy);g.lineTo(W-R,yy);g.stroke();g.fillStyle="#7B8494";g.font="13px sans-serif";g.textAlign="right";g.fillText((y*25)+"%",L-8,yy+4);}
+  const x=i=>L+(W-L-R)*(i/(pts.length-1||1)),y=a=>T+(H-T-B)*(1-a);
+  g.strokeStyle="#006D77";g.lineWidth=3;g.beginPath();pts.forEach((p,i)=>{i?g.lineTo(x(i),y(p.a)):g.moveTo(x(i),y(p.a));});g.stroke();
+  pts.forEach((p,i)=>{g.fillStyle="#006D77";g.beginPath();g.arc(x(i),y(p.a),5,0,7);g.fill();g.fillStyle="#232A35";g.textAlign="center";g.font="12px sans-serif";g.fillText(p.n,x(i),H-B+18);});
+  g.fillStyle="#555";g.font="13px sans-serif";g.textAlign="center";g.fillText("라벨별 학습 데이터 개수",(L+W-R)/2,H-6);
+  const first=pts[0].a,last=pts[pts.length-1].a; const n=$("q-note");n.style.display="block";
+  n.innerHTML=`라벨별 2개로 배웠을 때 <b>${(first*100).toFixed(0)}%</b> → ${mx}개로 배웠을 때 <b>${(last*100).toFixed(0)}%</b>. `+(last>first?"데이터가 늘수록 처음 보는 문자를 더 잘 맞힙니다. 곡선이 울퉁불퉁한 구간은 ‘어떤 문자가 추가됐느냐’에 따라 배운 낱말이 달라졌기 때문입니다.":"곡선이 오르지 않았다면 시험 문자에 배운 적 없는 낱말이 많거나 데이터가 서로 너무 비슷합니다 — 우리 반 문자를 더 붙여 넣어 보세요.");
+  $("q-range").max=mx;$("q-range").value=mx;$("q-val").textContent=mx;$("q-acc").textContent=(last*100).toFixed(0)+"%";
+}
+
+/* ── ⑤ 편향 ── */
+const BIAS_TEST="무료 급식 신청서는 내일까지 담임 선생님께 제출하세요";
+function biasRun(){
+  const m=buildModel(SEED_INFO,BIAS_AD); const r=predict(m,BIAS_TEST);
+  $("b-bars").innerHTML=barsHTML(r);$("b-tokens").innerHTML=tokensHTML(r);
+  const n=$("b-note");n.style.display="block";
+  n.innerHTML=`판정: <b class="lab-ad">${r.label==='ad'?'광고':'정보'}</b>. 광고 문자 10개가 <b>전부 ‘무료’</b>를 담고 있어서, AI는 ‘광고=무료’라고 배웠습니다. 급식 안내문이 광고가 된 이유는 AI가 멍청해서가 아니라 <b>데이터가 세상을 대표하지 못해서</b>입니다. 3차시의 치와와머핀과 같은 일입니다.`;
+}
+function biasFix(){
+  const m=buildModel(SEED_INFO.concat(BIAS_FIX_INFO),BIAS_AD.concat(BIAS_FIX)); const r=predict(m,BIAS_TEST);
+  $("b-bars").innerHTML=barsHTML(r);$("b-tokens").innerHTML=tokensHTML(r);
+  const n=$("b-note");n.style.display="block";
+  n.innerHTML=`데이터를 고쳤습니다 — ‘무료’ 없는 광고 8개와 ‘무료·신청·제출’이 든 정보 5개를 추가. 판정: <b class="${r.label==='info'?'lab-info':'lab-ad'}">${r.label==='info'?'정보':'광고'}</b>. AI를 고치는 일은 AI를 만지는 게 아니라 <b>데이터를 고치는 일</b>이었습니다. → 활동지 ‘AI 처방전’`;
+}
+
+/* ── ① 퀴즈 ── */
+let Q=[],qi=0,qc=0;
+function startQuiz(){
+  const rnd=seeded(); const pick=(a,l)=>a.slice().sort(()=>rnd()-0.5).slice(0,4).map(s=>({s,l}));
+  Q=pick(SEED_INFO,"info").concat(pick(SEED_AD,"ad")).sort(()=>rnd()-0.5); qi=0;qc=0;$("q-log").innerHTML="";showQ();
+}
+function showQ(){ if(qi>=Q.length){$("q-msg").innerHTML=`끝! 8개 중 <b>${qc}</b>개 정답. 활동지에 <b>내가 본 근거</b>를 적으세요 — AI도 같은 일을 합니다.`;return;} $("q-msg").textContent=Q[qi].s; $("q-n").textContent=qi+1; }
+function answer(l){ if(!Q.length||qi>=Q.length)return; const ok=Q[qi].l===l; if(ok)qc++;
+  $("q-log").innerHTML+=`<div><span class="${ok?'ok':'no'}">${ok?'○':'×'}</span> ${Q[qi].s} <span style="color:#7B8494">(정답: ${Q[qi].l==='info'?'정보':'광고'})</span></div>`;
+  qi++;$("q-c").textContent=qc;showQ();}
+
+/* ── ⑥ k-평균 ── */
+let P=[],CEN=[],IT=0; const KC=["#006D77","#D05A2A","#2E7D32"];
+const kcv=document.getElementById("k-cv"),kg=kcv.getContext("2d");
+function kDraw(){
+  const W=kcv.width,H=kcv.height; kg.clearRect(0,0,W,H);
+  kg.strokeStyle="#EEE";for(let i=1;i<10;i++){const x=40+(W-80)*(i/10),y=20+(H-60)*(1-i/10);kg.beginPath();kg.moveTo(x,20);kg.lineTo(x,H-40);kg.stroke();kg.beginPath();kg.moveTo(40,y);kg.lineTo(W-40,y);kg.stroke();}
+  kg.strokeStyle="#B8C0CC";kg.strokeRect(40,20,W-80,H-60);
+  kg.fillStyle="#7B8494";kg.font="13px sans-serif";kg.textAlign="center";kg.fillText($("ax-x").textContent+" →",W/2,H-14);
+  kg.save();kg.translate(14,H/2);kg.rotate(-Math.PI/2);kg.fillText($("ax-y").textContent+" →",0,0);kg.restore();
+  const X=v=>40+(W-80)*((v-1)/9),Y=v=>20+(H-60)*(1-(v-1)/9);
+  P.forEach(p=>{kg.fillStyle=p.c==null?"#8A94A6":KC[p.c];kg.beginPath();kg.arc(X(p.x),Y(p.y),8,0,7);kg.fill();});
+  CEN.forEach((c,i)=>{kg.strokeStyle=KC[i];kg.lineWidth=4;kg.beginPath();kg.moveTo(X(c.x)-12,Y(c.y)-12);kg.lineTo(X(c.x)+12,Y(c.y)+12);kg.moveTo(X(c.x)+12,Y(c.y)-12);kg.lineTo(X(c.x)-12,Y(c.y)+12);kg.stroke();kg.lineWidth=1;});
+  $("k-n").textContent=P.length;$("k-it").textContent=IT;
+}
+kcv.addEventListener("pointerdown",e=>{const r=kcv.getBoundingClientRect();const px=(e.clientX-r.left)*kcv.width/r.width,py=(e.clientY-r.top)*kcv.height/r.height;
+  const x=1+9*(px-40)/(kcv.width-80),y=1+9*(1-(py-20)/(kcv.height-60)); if(x<1||x>10||y<1||y>10)return; P.push({x:+x.toFixed(1),y:+y.toFixed(1),c:null});CEN=[];IT=0;kDraw();});
+function kLoad(){const rows=$("k-in").value.split("\n").map(s=>s.split(/[,\s]+/).map(Number)).filter(a=>a.length>=2&&!isNaN(a[0])&&!isNaN(a[1]));P=rows.map(a=>({x:Math.min(10,Math.max(1,a[0])),y:Math.min(10,Math.max(1,a[1])),c:null}));CEN=[];IT=0;kDraw();toast(P.length+"개 불러옴");}
+function kSeed(){const rnd=seeded();P=[];const cs=[[8,3],[2.5,8],[7.5,8]];cs.forEach(c=>{for(let i=0;i<10;i++)P.push({x:+Math.min(10,Math.max(1,c[0]+(rnd()-0.5)*3.5)).toFixed(1),y:+Math.min(10,Math.max(1,c[1]+(rnd()-0.5)*3.5)).toFixed(1),c:null});});CEN=[];IT=0;kDraw();}
+function kClear(){P=[];CEN=[];IT=0;kDraw();}
+function kInit(){const rnd=seeded();const s=P.slice().sort(()=>rnd()-0.5);CEN=s.slice(0,3).map(p=>({x:p.x,y:p.y}));IT=0;}
+function kStep(){ if(P.length<3){toast("점이 3개 이상 필요해요");return;} if(CEN.length<3)kInit();
+  P.forEach(p=>{let b=0,bd=1e9;CEN.forEach((c,i)=>{const d=(p.x-c.x)**2+(p.y-c.y)**2;if(d<bd){bd=d;b=i;}});p.c=b;});
+  CEN=CEN.map((c,i)=>{const g=P.filter(p=>p.c===i);return g.length?{x:g.reduce((a,p)=>a+p.x,0)/g.length,y:g.reduce((a,p)=>a+p.y,0)/g.length}:c;});
+  IT++;kDraw();}
+function kRun(){ if(P.length<3){toast("점이 3개 이상 필요해요");return;} kInit(); let k=0; const h=setInterval(()=>{kStep();if(++k>=8){clearInterval(h);toast("묶기 완료 — 그룹 이름을 붙이세요");}},450);}
+function axSet(){const x=$("ax-xi").value.trim(),y=$("ax-yi").value.trim();if(x)$("ax-x").textContent=x;if(y)$("ax-y").textContent=y;kDraw();}
+
+loadSeed(); kDraw();
+</script>
+</body>
+</html>
