@@ -44,6 +44,7 @@ canvas.board{background:#fff;border:3px solid var(--navy);border-radius:12px;wid
 input[type=range]{width:100%;}
 .dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:6px;justify-content:center;margin-top:10px;}
 #p0 #hcv{display:block;margin:0 auto;}
+#h-dpad{margin-left:-12px;}
 .dpad button{font-size:26px;border:none;border-radius:14px;background:var(--navy);color:#fff;}
 .dpad .e{background:transparent;} .dpad button.e{background:transparent;}
 .note{background:#FFF3EC;border-left:5px solid var(--orange);border-radius:0 12px 12px 0;padding:10px 14px;font-size:14px;line-height:1.55;margin-top:10px;}
@@ -80,7 +81,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;} th,t
   <div class="card"><h2><span class="step">L0</span>내가 먼저 — 사람의 점수</h2>
     <div class="hint"><b>화살표(또는 화면 쓸기)로 3판을 직접 해 보고 평균 점수를 활동지에 적으세요.</b><br><b>그리고 예측: AI는 몇 판을 배우면 나를 넘을까?</b></div>
     <div class="row"><div class="col"><canvas class="board" id="hcv" width="400" height="400"></canvas>
-      <div class="dpad"><div class="e"></div><button onpointerdown="hDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="hDir(-1,0)">◀</button><button onpointerdown="if(!H||!H.alive)hStart()">▶︎</button><button onpointerdown="hDir(1,0)">▶</button><div class="e"></div><button onpointerdown="hDir(0,1)">▼</button><div class="e"></div></div></div>
+      <div class="dpad" id="h-dpad"><div class="e"></div><button onpointerdown="hDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="hDir(-1,0)">◀</button><button onpointerdown="if(!H||!H.alive)hStart()">▶︎</button><button onpointerdown="hDir(1,0)">▶</button><div class="e"></div><button onpointerdown="hDir(0,1)">▼</button><div class="e"></div></div></div>
       <div class="col"><span class="stat">이번 판 <b id="h-score">0</b></span><span class="stat">판 <b id="h-game">0</b>/3</span><span class="stat">기록 <b id="h-log">-</b></span><span class="stat">평균 <b id="h-avg">-</b></span>
         <div class="btnrow"><button class="btn navy" onclick="hStart()">시작 / 다음 판</button></div>
         <div class="note n"><b>규칙: 먹이(●)를 먹으면 +1점, 벽이나 자기 몸에 부딪히면 게임 오버. AI도 정확히 같은 규칙으로 배웁니다 — 다만 AI는 점수판이 아니라 보상을 봅니다.</b></div></div></div>
