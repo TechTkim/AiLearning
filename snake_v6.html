@@ -199,7 +199,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;} th,t
     <div class="hint">여러분 눈에는 독사과(✕)가 보입니다. <b>센서 없는 AI</b>(600판 학습)의 눈에는 없습니다. <b>센서 단 AI</b>는 독사과를 볼 수 있고 <b>1000판</b>을 배운, 오늘의 마지막 상대입니다. 각각 <b>3판씩</b> 겨루고 결과를 해석하세요.</div>
     <div class="btnrow"><button class="btn red" onclick="poisonDuel(false)">센서 없는 AI와 3판</button><button class="btn green" onclick="poisonDuel(true)">센서 단 AI(1000판)와 3판</button><span class="stat">이번 판 — 나 <b id="pd-hs">0</b> : <b id="pd-as">0</b> AI</span><span class="stat" id="pd-series">-</span></div>
     <div class="duel"><div><div class="who h">🧑 나 (독사과가 보임)</div><canvas class="board" id="pdh" width="400" height="400"></canvas></div><div><div class="who a">🤖 AI (<span id="pd-kind">-</span>)</div><canvas class="board" id="pda" width="400" height="400"></canvas></div></div>
-    <div class="dpad"><div class="e"></div><button onpointerdown="dDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="dDir(-1,0)">◀</button><button class="e" disabled></button><button onpointerdown="dDir(1,0)">▶</button><div class="e"></div><button onpointerdown="dDir(0,1)">▼</button><div class="e"></div></div>
+    <div class="dpad"><div class="e"></div><button onpointerdown="dDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="dDir(-1,0)">◀</button><button onpointerdown="pdNext()">⚔</button><button onpointerdown="dDir(1,0)">▶</button><div class="e"></div><button onpointerdown="dDir(0,1)">▼</button><div class="e"></div></div>
     <div class="note g" id="pd-note" style="display:none"></div>
   </div>
 </section>
@@ -483,6 +483,7 @@ function fixRace(){ if(!TRAP_RW){toast("함정을 먼저 골라 학습해 보세
     },150); },30); }
 
 /* ═══════════ 독사과 대결 (3판 시리즈) ═══════════ */
+function pdNext(){ if(DUEL&&DUEL.DH.alive&&DUEL.cfg.poison)return; poisonDuel(PDS.sensor==null?false:PDS.sensor); }
 let PDA={false:null,true:null}, PDS={sensor:null,games:[]};
 function poisonAgent(sensor){ if(PDA[sensor])return PDA[sensor]; const ag=new Agent();ag.eps=0.05;const rng=mkRng(333);const n=sensor?1000:600;for(let k=0;k<n;k++)runEpisode(ag,BASE_RW,rng,{poison:true,sensor}); PDA[sensor]=ag; return ag; }
 function poisonDuel(sensor){ if(DUEL&&DUEL.DH.alive&&DUEL.cfg.poison){toast("이번 판이 끝난 뒤 누르세요");return;}
