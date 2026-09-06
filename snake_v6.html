@@ -29,6 +29,7 @@ main{max-width:1000px;margin:0 auto;padding:14px;}
 .card h2{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px;}
 .card h2 .step{display:inline-block;background:var(--orange);color:#fff;font-size:12px;padding:2px 10px;border-radius:99px;margin-right:8px;vertical-align:middle;}
 .hint{font-size:13.5px;color:var(--gray);line-height:1.5;margin-bottom:8px;}
+#p0 .hint{font-size:20.25px;}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;}
 .col{flex:1;min-width:280px;}
 canvas.board{background:#fff;border:3px solid var(--navy);border-radius:12px;width:100%;max-width:360px;aspect-ratio:1;touch-action:none;display:block;}
@@ -43,6 +44,7 @@ canvas.board{background:#fff;border:3px solid var(--navy);border-radius:12px;wid
 .rw b{font-weight:800;} .rw output{text-align:right;font-weight:800;color:var(--navy);}
 input[type=range]{width:100%;}
 .dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:6px;justify-content:center;margin-top:10px;}
+#p0 #hcv{display:block;margin:0 auto;}
 .dpad button{font-size:26px;border:none;border-radius:14px;background:var(--navy);color:#fff;}
 .dpad .e{background:transparent;} .dpad button.e{background:transparent;}
 .note{background:#FFF3EC;border-left:5px solid var(--orange);border-radius:0 12px 12px 0;padding:10px 14px;font-size:14px;line-height:1.55;margin-top:10px;}
@@ -77,7 +79,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;} th,t
 <!-- L0 -->
 <section class="panel on" id="p0">
   <div class="card"><h2><span class="step">L0</span>내가 먼저 — 사람의 점수</h2>
-    <div class="hint">화살표(또는 화면 쓸기)로 3판을 직접 해 보고 평균 점수를 활동지에 적으세요. 그리고 <b>예측</b>: AI는 몇 판을 배우면 나를 넘을까?</div>
+    <div class="hint"><b>화살표(또는 화면 쓸기)로 3판을 직접 해 보고 평균 점수를 활동지에 적으세요.</b><br><b>그리고 예측: AI는 몇 판을 배우면 나를 넘을까?</b></div>
     <div class="row"><div class="col"><canvas class="board" id="hcv" width="400" height="400"></canvas>
       <div class="dpad"><div class="e"></div><button onpointerdown="hDir(0,-1)">▲</button><div class="e"></div><button onpointerdown="hDir(-1,0)">◀</button><button onpointerdown="if(!H||!H.alive)hStart()">▶︎</button><button onpointerdown="hDir(1,0)">▶</button><div class="e"></div><button onpointerdown="hDir(0,1)">▼</button><div class="e"></div></div></div>
       <div class="col"><span class="stat">이번 판 <b id="h-score">0</b></span><span class="stat">판 <b id="h-game">0</b>/3</span><span class="stat">기록 <b id="h-log">-</b></span><span class="stat">평균 <b id="h-avg">-</b></span>
